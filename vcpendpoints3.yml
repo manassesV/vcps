@@ -1,0 +1,48 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: 'VPC: Gateway Endpoint S3'
+Metadata:
+   AWS::CloudFormation::Interface:
+        ParametersGroups:
+           - Label:
+                default: 'Parent Stacks'
+             Parameters:
+                - ParentVPCStack
+Parameters:
+    ParentVPCStack:
+         Description: Stack name of parent vpc stack on vpc/vpc-*azs.yaml template.
+         Type: String
+Resources:
+    EndpointS3:
+         Type: 'AWS::EC2::VPCEndpoint'
+         Properties:
+            RouteTableIds: !Split [',', !Join [',',[{'Fn::ImportValue': !Sub '${ParentVPCStack}-RouteTablePublic'}, {'Fn::ImportValue': !Sub '${ParentVPCStack}-RouteTablesPrivate'}]]]
+            ServiceName: !Sub 'com.amazonaws.${AWS::Region}.s3'
+            VpcId: {'Fn::ImportValue' : !Sub '${ParentVPCStack}-VPC'}
+            PolicyDocument:
+                Version: 2012-10-17
+                Id: Policy1415115909151
+                Statement:
+                    Sid: Access-to-specifc-bucket-only
+                    Principal: "*"
+                    Action:
+                        - s3:GetObject
+                        - s3:PutObject
+                    Effect: Allow
+                    Resource:
+                       - arn:aws:s3:::templatesaws
+Outputs:
+   TemplateID:
+       Description: 'cloudonaut.io template id.'
+       Value: 'vpc/vpc-endpoint-s3'
+   TemplateVersion:
+       Description: 'cloudonaut.io template version.'
+       Value: '__VERSION__'
+   StackName:
+       Description: 'Stack name'
+       Value: !Sub '${AWS::StackName}'
+   Endpoint:
+       Description: 'The VPC endpoint to S3'
+       Value: !Ref EndpointS3
+       Export:
+          Name: !Sub '${AWS::StackName}-EndpointS3'
+        

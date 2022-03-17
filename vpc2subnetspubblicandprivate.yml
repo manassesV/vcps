@@ -104,7 +104,22 @@ Resources:
          Properties:
               SubnetId: !Ref PrivateSubnet2
               RouteTableId: !Ref PrivateRouteTable
- 
+Outputs:
+    RouteTablePublic:
+         Description: Route tables ids public
+         Value:   !Join [',', [!Ref PublicRouteTable]]
+         Export:
+             Name: !Sub "${AWS::StackName}-RouteTablePublic"
+    RouteTablesPrivate:
+         Description: Route tables ids private
+         Value: !Join [',', [!Ref PrivateRouteTable]]
+         Export:
+             Name: !Sub "${AWS::StackName}-RouteTablesPrivate"
+    PubPrivateVPC:
+         Description: VPCID
+         Value: !Join [',', [!Ref PubPrivateVPC]]
+         Export:
+             Name: !Sub "${AWS::StackName}-VPC"
 
 
 
